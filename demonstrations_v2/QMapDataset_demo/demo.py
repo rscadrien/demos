@@ -133,7 +133,6 @@ def  circuit():
 # **2.How to solve the qubit mapping problem?**
 # ---------------------------------------------
 # 
-######################################################################
 # The qubit mapping problem is unfortunately a NP problem and is exponentially hard to find the
 # optimal solution when the number of logical and physical qubits increases. However, there are some
 # heuristic methods that allow us to solve it with a reasonable computational time. The most famous
