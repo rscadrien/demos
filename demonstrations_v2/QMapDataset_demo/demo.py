@@ -286,7 +286,7 @@ mapping = sample0_mapping["final_mapping"]
 # section of the Qubit Mapping Eagle 3 page on the PennyLane website. (`Qubit Mapping Eagle
 # 3 <https://pennylane.ai/datasets/qubit-mapping-eagle3>`__ ).
 # 
-# **4.Building a machine learning model to solve the qubit mapping problem**
+# **4. Building a machine learning model to solve the qubit mapping problem**
 # --------------------------------------------------------------------------
 # 
 # In this session, we will show an example of how to preprocess data from QMapDataset and how to build
