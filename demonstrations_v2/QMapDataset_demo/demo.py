@@ -11,7 +11,6 @@ Neural Network to tackle the qubit mapping problem.
 # **1. What is the qubit mapping problem?**
 # -----------------------------------------
 # 
-######################################################################
 # When we write quantum circuits (with Pennylane, of course!), we usually assume that all the qubits
 # are connected to each other, or more precisely, that two-qubit gates can be applied between any
 # qubits. While some infrastructures have all-to-all connectivity (like the photonic devices developed
@@ -21,7 +20,6 @@ Neural Network to tackle the qubit mapping problem.
 # 
 # :math:`pq_0-pq_1-pq_2-pq_3-pq_4`
 # 
-######################################################################
 # Physical qubit 0 and physical qubit 3 are not directly connected. If a two-qubit gate is required in
 # your code between qubits 0 and 3, it is necessary to apply SWAP gates. SWAP gates exchange the
 # states of two neighboring qubits for all basis states in the superposition (more details here `What
@@ -32,13 +30,11 @@ Neural Network to tackle the qubit mapping problem.
 # :math:`\frac{1}{\sqrt{2}}(|00100\rangle + |00001\rangle)`. Then, we can apply the CNOT gate between
 # :math:`pq_2` and :math:`pq_3`.
 # 
-######################################################################
 # The lack of full connectivity between physical qubits does not alter the universality of quantum
 # computation in these devices but leads to an increase in the depth of the effective quantum circuit.
 # A SWAP gate corresponds to 3 CNOT gates. Therefore, instead of 1 CNOT gate, we have 7 CNOT gates.
 # This increase can be fatal for your quantum computation, especially on a NISQ device.
 # 
-######################################################################
 # Indeed, NISQ devices are sensitive to noise. In particular, two-qubit gates are noisy. Therefore,
 # when a large number of two-qubit gates is applied on a NISQ device, the quantum information is
 # progressively lost and randomized. Therefore, when running a quantum circuit on a NISQ device, we
@@ -47,7 +43,6 @@ Neural Network to tackle the qubit mapping problem.
 # quantum computers, reducing the number of CNOT gates would help to reduce the time of computation
 # and therefore the computational cost.
 # 
-######################################################################
 # It is here that qubit mapping can help mitigate the number of SWAP gates. There is no rule that
 # constrains the first qubit of your quantum circuit to be the first physical qubit, the second qubit
 # of your quantum circuit to be the second physical qubit, etc. We can separate the two sets of
@@ -61,9 +56,7 @@ Neural Network to tackle the qubit mapping problem.
 # :math:`lq_3\rightarrow pq_1`, a CNOT gate between physical qubits 0 and 1 corresponds to a CNOT gate
 # between logical qubits 0 and 3, as desired.
 # 
-######################################################################
 # Let's consider a slightly more complex quantum circuit:
-# 
 
 import pennylane as qp
 dev = qp.device("default.qubit", wires=5)
@@ -81,37 +74,30 @@ def  circuit():
 # 
 # :math:`pq_0(lq_0)-pq_1(lq_1)-pq_2(lq_2)-pq_3(lq_3)-pq_4(lq_4)`
 # 
-######################################################################
 # Here, in parentheses, the logical qubit mapped to the corresponding physical qubit is shown.
 # 
-######################################################################
 # For the first CNOT gate between :math:`lq_0` and :math:`lq_4`, we need to apply 3 SWAP gates
 # (SWAP(:math:`pq_0`, :math:`pq_1`), SWAP(:math:`pq_1`, :math:`pq_2`), and SWAP(:math:`pq_2`,
 # :math:`pq_3`)). The mapping becomes:
 # 
 # :math:`pq_0(lq_1)-pq_1(lq_2)-pq_2(lq_3)-pq_3(lq_0)-pq_4(lq_4)`
 # 
-######################################################################
 # Afterward, for the CNOT gate between :math:`lq_1` and :math:`lq_3`, we need a SWAP gate between
 # :math:`pq_1` and :math:`pq_2`:
 # 
 # :math:`pq_0(lq_1)-pq_1(lq_3)-pq_2(lq_2)-pq_4(lq_0)-pq_4(lq_4)`
 # 
-######################################################################
 # Finally, for the CNOT gate between :math:`lq_0` and :math:`lq_2`, we do not need any additional SWAP
 # gates. Therefore, in total, there are 4 SWAP gates.
 # 
-######################################################################
 # Now, let’s consider the following initial mapping:
 # 
 # :math:`pq_0(lq_1)-pq_1(lq_3)-pq_2(lq_2)-pq_3(lq_0)-pq_4(lq_4)`
 # 
-######################################################################
 # In this case, there is no need for SWAP gates. The three CNOT gates can be applied directly. We go
 # from 15 CNOT gates to 3 CNOT gates, a reduction by a factor of 5 just by changing the initial
 # mapping!
 # 
-######################################################################
 # Now that the qubit mapping problem is clear from these 5-qubit examples, let’s give a generalized
 # definition. We start with:
 # 
@@ -119,37 +105,31 @@ def  circuit():
 # -  A quantum device with m physical qubits :math:`pq_0, pq_1, \dots, pq_{m-1}` connected by some
 #    graph :math:`G_D`.
 # 
-######################################################################
 # The goal of the qubit mapping problem is to find the initial mapping
 # :math:`\pi_0: \{lq\}\rightarrow \{pq\}` in order to minimize the number of SWAP gates during the
 # execution of the quantum circuit C on the quantum device. Note that in general, the number of
 # logical qubits :math:`n` is smaller than the number of physical qubits :math:`m` (and cannot be
 # bigger).
 # 
-######################################################################
 # The initial qubit mapping problem can be represented as an assignment matrix A of dimension
 # :math:`n\times m`:
 # 
 # -  :math:`A_{ij}=1` if logical qubit :math:`lq_i` is mapped to the physical qubit :math:`pq_j`.
 # -  :math:`A_{ij}=0` otherwise
 # 
-######################################################################
 # There are two constraints on the assignment matrix A : \* Each logical qubit is assigned exactly one
 # physical qubit :math:`\sum_{j=1}^m A_{ij} = 1, ~\forall i`
 # 
 # -  Each physical qubit holds at most one logical qubit :math:`\sum_{i=1}^n A_{ij}\leq 1, ~\forall j`
 # 
-######################################################################
 # An important quantity is the distance between two physical qubits :math:`D_{ij}=d(pq_i, pq_j)`. The
 # distance is the shortest-path length between two physical qubits in the hardware connectivity graph,
 # and it directly estimates how many SWAPs are needed to make them interact. Of course, the distance
 # would depend on the hardware connectivity graph.
 # 
-######################################################################
 # We will explore in the next section the actual methods used to find the optimal assignment matrix A
 # and therefore to solve the qubit mapping problem.
 # 
-######################################################################
 # **2.How to solve the qubit mapping problem?**
 # ---------------------------------------------
 # 
@@ -159,11 +139,9 @@ def  circuit():
 # heuristic methods that allow us to solve it with a reasonable computational time. The most famous
 # heuristic algorithm is the SABRE algorithm, used for example by Qiskit in its compilation.
 # 
-######################################################################
 # The SABRE algorithm works by iteratively updating the qubit mapping guided by a cost function based
 # on the total distance.
 # 
-######################################################################
 # **Forward propagation** 1. **Initialize the mapping**: The algorithm starts by initializing a single
 # mapping between logical and physical qubits (typically random or identity). Example (5-qubit
 # device): :math:`pq_0(lq_0)-pq_1(lq_2)-pq_2(lq_3)-pq_3(lq_4)-pq_4(lq_1)`
@@ -190,7 +168,6 @@ def  circuit():
 #    gates become executable. Gates are executed whenever possible. SWAPs are inserted when necessary.
 #    At the end of this process, the algorithm produces a final mapping for the forward pass.
 # 
-######################################################################
 # **Backward propagation**
 # 
 # 7. **Reverse circuit execution**: The algorithm then repeats the same procedure, but on the reversed
@@ -201,88 +178,72 @@ def  circuit():
 #    :math:`\pi_0` is obtained. This initial mapping is typically better than the original random
 #    initialization.
 # 
-######################################################################
 # In practice, SABRE may repeat multiple forward and backward passes (usually around 3 iterations),
 # gradually improving the mapping until no significant improvement is observed.
 # 
-######################################################################
 # The SABRE algorithm has a polynomial computational complexity of approximately
 # :math:`\mathcal{O}(Tm^2 n)` where :math:`T` is the total number of two-qubit gates in the quantum
 # circuit. This is significantly better than the exponential scaling of an exact solution. However, as
 # the number of qubits in superconducting processors continues to increase, the runtime of the SABRE
 # algorithm also grows accordingly.
 # 
-######################################################################
 # Machine learning models could offer better scalability while maintaining high accuracy. In this
 # demo, we consider supervised learning. Supervised learning requires a dataset with input data and
 # corresponding labels to train the model. This is the purpose of QMapDataset, which provides datasets
 # and tools to generate them for solving the qubit mapping problem using supervised machine learning
 # models. QMapDataset is available in PennyLane. We will explore its features in the next section.
 # 
-######################################################################
 # **3. QMapDataset**
 # ------------------
 # 
-######################################################################
 # QMapDataset is a dataset generator for the qubit mapping problem, designed for IBM quantum devices.
 # The dataset is built from three main components: the hardware, the circuits, and the mapping.
 # 
-######################################################################
 # **For the hardware**, First, we choose an IBM quantum processor. To make the dataset more diverse,
 # the code can randomly permute the properties of the qubits and gates (data augmentation). We can
 # control how often these permutations are applied.
 # 
-######################################################################
 # Then, the code collects all the relevant hardware information:
 # 
 # -  physical qubit properties (:math:`T_1`, :math:`T_2`, readout error)
 # -  single-qubit gate errors for each qubit
 # -  two-qubit gate errors for each connected pair of qubits
 # 
-######################################################################
 # **For the circuits**, These are sampled either from:
 # 
 # -  random quantum circuits
 # -  well-known circuits (QPE, Grover, QFT, GHZ state preparation etc.)
 # 
-######################################################################
 # By default, the choice is split 50–50 between random and well-known circuits.
 # 
 # For random quantum circuits, the code also sample: \* the number of logical qubits \* the circuit
 # depth
 # 
-######################################################################
 # The number of logical qubits is chosen between 3 and the number of physical qubits available on the
 # hardware. The depth follows this distribution: 25% shallow (5–15 layers), 40% medium (16–50),
 # 30% deep (51–150), and 5% very deep circuits (151–400).
 # 
-######################################################################
 # To further enrich the dataset, we apply random permutations of qubits to the well-known circuits
 # (since there are only a few of them). After that, the code collects:
 # 
 # -  Single-qubit gate counts for each logical qubit
 # -  Two-qubit gate counts for each pair of logical qubits
 # 
-######################################################################
 # Finally, **for the mapping**, the code uses the generated hardware and circuits to compute the qubit
 # mapping with an advanced version of the SABRE algorithm (optimization_level = 3 in Qiskit).
 # 
-######################################################################
 # If you want more details, you can have a look at the GitHub repo: `rscadrien/QMapDataset: Generator
 # of dataset for qubit mapping <https://github.com/rscadrien/QMapDataset>`__.
 # 
-######################################################################
 # The good news is that you do not need to generate this dataset using QMapDataset yourself! We have
 # already prepared datasets for three different types of IBM quantum processors: Eagle 3, Heron 1, and
 # Heron 2. Each dataset contains 10,000 samples, where each sample consists of a circuit, hardware
 # description, and mapping.
 # 
-######################################################################
 # Let’s see how to use these datasets with PennyLane and extract their information.
 # 
 # The first step is to load a dataset from the Xanadu server. For example, to load the dataset for the
 # Eagle 3 architecture:
-# 
 
 import pennylane as qp
 [ds] = qp.data.load("other", name="qubit-mapping-eagle3")
@@ -326,31 +287,25 @@ mapping = sample0_mapping["final_mapping"]
 # section of the Qubit Mapping Eagle 3 page on the PennyLane website. (`Qubit Mapping Eagle
 # 3 <https://pennylane.ai/datasets/qubit-mapping-eagle3>`__ ).
 # 
-######################################################################
 # **4.Building a machine learning model to solve the qubit mapping problem**
 # --------------------------------------------------------------------------
 # 
-######################################################################
 # In this session, we will show an example of how to preprocess data from QMapDataset and how to build
 # a machine learning model that can solve the qubit mapping problem.
 # 
-######################################################################
 # **4.1 Preprocessing**
 # ~~~~~~~~~~~~~~~~~~~~~
 # 
-######################################################################
 # The qubit mapping problem strongly depends on the connectivity between the physical qubits in the
 # given hardware, as well as the connectivity between the logical qubits in the circuits (represented
 # by two-qubit gate counts). Therefore, a graph is a natural representation for solving the qubit
 # mapping problem. We will see how to construct graphs for both the circuits and the hardware using
 # the QMapDataset available in PennyLane.
 # 
-######################################################################
 # A graph is a way of showing relationships. It is made up of points, called nodes (or vertices), that
 # are connected by lines, called edges. Both nodes and edges can also have extra information attached
 # to them, called features.
 # 
-######################################################################
 # For the **circuit**, the nodes represent the logical qubits, and edges connect pairs of logical
 # qubits between which two-qubit gates are applied in the quantum circuit. The features of each node
 # are the counts of different single-qubit gates applied to the corresponding logical qubit. The
@@ -501,14 +456,12 @@ plt.show()
 # 
 # .. |My graph| image:: graph_circuit.png
 # 
-######################################################################
 # For the **hardware**, the nodes represent the physical qubits, and edges connect pairs of physical
 # qubits that are directly connected in the device architecture. The features of each node are the
 # :math:`T_1` and :math:`T_2` coherence times, readout error, and single-qubit gate errors for each
 # physical qubit. The features of each edge are the errors of the different two-qubit gates applied
 # between connected physical qubits. As with the circuits, the feature values are standardized. The
-# code to build the graph for the hardware is pretty similar to the one for the circuit:
-# 
+# code to build the graph for the hardware is pretty similar to the one for the circuit: 
 
 def build_hardware_graph(hardware_data):
     # Scaling single qubit properties and gate
@@ -558,11 +511,9 @@ plt.show()
 # 
 #    My graph
 # 
-######################################################################
 # **4.2 Machine learning model**
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # 
-######################################################################
 # We will show how to build a model that can learn qubit mapping. For this model, we will use an
 # architecture adapted to the graph structure of the input: a Graph Neural Network (GNN). The key
 # principle behind GNNs is that a node learns by aggregating information from its neighbors. A GNN
@@ -572,25 +523,21 @@ plt.show()
 # -  Aggregation: Combine neighbor information (e.g., sum, mean, max)
 # -  Update: Use a neural network to update the node’s embedding.
 # 
-######################################################################
 # In our case, we will use two separate GNNs: one for the quantum circuit and one for the hardware.
 # After several GNN layers, we obtain updated embedding vectors for the nodes of both graphs,
 # :math:`h_L^{(i)}` and :math:`h_P^{(j)}`. (:math:`h_L^{(i)}` is the vector of the i th node of the
 # quantum circuit graph while :math:`h_P^{(j)}` is the vector of the jth node of the hardware graph).
 # 
-######################################################################
 # We then compare these embeddings using a dot product:
 # 
 # :math:`S_{ij}=h_L^{(i)}\cdot h_P^{(j)}`
 # 
-######################################################################
 # The matrix element :math:`S_{ij}` represents the logit that the logical qubit :math:`lq_i` is mapped
 # to the physical qubit :math:`pq_j`. The probability that logical qubit k maps to physical qubit j is
 # calculated from the logit:
 # 
 # :math:`p_{ij}=\frac{\text{exp}(S_{ij})}{\sum_{j^\prime} \text{exp}(S_{ij}^\prime)}`
 # 
-######################################################################
 # During training, the matrix :math:`p_{ij}` should ideally converge to the assignment matrix
 # :math:`A_{ij}` presented in Section 2, where each row contains exactly one nonzero element equal to
 # 1. After training, during inference, the strict assignment constraints are enforced by applying the
@@ -690,24 +637,19 @@ class QubitMapping_dot_Model(nn.Module):
 # **4.3 Loss function and metric**
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # 
-######################################################################
 # We need to have a loss function to minimize for the training of the model.
 # 
-######################################################################
 # For each logical qubit k, we know the correct assignment (from the training data), which we denote
 # as :math:`k_c`. This is the physical qubit that the logical qubit should be mapped to.
 # 
-######################################################################
 # The loss for the logical qubit k is then defined as:
 # 
 # :math:`L_k=\log(p_{k,k_c})`
 # 
-######################################################################
 # Finally, the total loss is computed by averaging over all logical qubits :
 # 
 # :math:`L = \frac{1}{n} \sum_{k=1}^n -\log(p_{k,k_c})`
 # 
-######################################################################
 # This is known as the cross-entropy loss. With Pytorch, the cross entropy loss can be calculated by
 # using nn.CrossEntropyLoss():
 # 
@@ -720,26 +662,21 @@ loss_fn = nn.CrossEntropyLoss()
 # prevent collisions (two logical qubits choosing the same physical qubit). It is the reason that it
 # is better to use the Hungarian algorithm during inference.
 # 
-######################################################################
 # In addition to the loss function, there are some metrics that help to evaluate the quality of the
 # model and are easier to interpret than the loss function. We consider two different metrics: \*
 # logical qubit-level accuracy \* full mapping accuracy
 # 
-######################################################################
 # To understand the difference between them, let us consider an example with 5 logical qubits and 5
 # physical qubits. The correct mapping (from the training data) is [2,1,4,3,0] and the model predicts
 # [2,0,4,3,1].
 # 
-######################################################################
 # For the logical qubit-level accuracy, we simply count how many individual assignments are correct.
 # In this example, 3 out of 5 qubits are correctly mapped. So the accuracy is 60%.
 # 
-######################################################################
 # For the full mapping accuracy, the prediction is considered correct only if the entire assignment is
 # exactly correct. In this example, the predicted mapping is not identical to the ground truth. So the
 # full mapping is incorrect. This metric is therefore much stricter and harder to improve.
 # 
-######################################################################
 # You could ask: Why use both metrics? These two metrics serve different goals. The logical
 # qubit-level accuracy is useful to monitor progress during training. The full mapping accuracy
 # reflects the actual goal of the problem: producing a correct global qubit mapping. During training,
@@ -748,7 +685,6 @@ loss_fn = nn.CrossEntropyLoss()
 # Hungarian algorithm significantly improves the full-mapping accuracy. As a result, the full-mapping
 # accuracy is often higher on the validation set than on the training set.
 # 
-######################################################################
 # These metrics are calculated with the following code for the training and the validation dataset:
 # 
 
@@ -808,7 +744,6 @@ def batch_graph_metrics_val(pred, qu_map, batch):
 # **4.3 Training Loop**
 # ~~~~~~~~~~~~~~~~~~~~~
 # 
-######################################################################
 # We now have all the elements to build our training loop! Here it is the code:
 # 
 
@@ -906,23 +841,19 @@ optimizer = torch.optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-5)
 # Athens), a full-mapping accuracy of 90% can be obtained. This is not yet perfect, but it shows that
 # a machine learning model can learn and solve the qubit mapping problem.
 # 
-######################################################################
 # **5. Conclusion**
 # -----------------
 # 
-######################################################################
 # In this demo, we introduced the qubit mapping problem. Qubit mapping is a fundamental problem for
 # hardwares with limited connectivity, such as superconducting devices. Unfortunately, the qubit
 # mapping problem is NP-hard. One way to find approximate solutions is to use heuristic methods, such
 # as the SABRE algorithm presented in this demo.
 # 
-######################################################################
 # It remains an open question whether a machine learning model can efficiently solve this problem and
 # have better scaling than the SABRE algorithm. To explore this idea, we need a dataset, which is the
 # purpose of QMapDataset. Three datasets for the IBM architectures Eagle R3, Heron r1, and Heron r2,
 # respectively, are now available in PennyLane, and we showed how to access them.
 # 
-######################################################################
 # Finally, we presented a Graph Neural Network model to solve the qubit mapping problem. This model
 # shows encouraging results on small hardware. The next challenge is how to scale it to larger
 # hardware, such as Eagle R3 (127 qubits), Heron r1 (133 qubits), and Heron r2 (156 qubits). Maybe the
