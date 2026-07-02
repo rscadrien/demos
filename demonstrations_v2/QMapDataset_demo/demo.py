@@ -545,6 +545,12 @@ plt.show()
 # used during training.The code for this architecture is as follows :
 # 
 
+import torch, torch.nn as nn, torch.nn.functional as F
+from torch_geometric.data import Batch
+from torch_geometric.nn import NNConv
+from torch.utils.data import Dataset, DataLoader, random_split
+from scipy.optimize import linear_sum_assignment
+
 class QubitMapping_dot_Model(nn.Module):
     def __init__(self, node_c_dim, node_h_dim, edge_c_dim, edge_h_dim, hidden_dim):
         super().__init__()
