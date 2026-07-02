@@ -130,7 +130,7 @@ def  circuit():
 # We will explore in the next section the actual methods used to find the optimal assignment matrix A
 # and therefore to solve the qubit mapping problem.
 # 
-# **2.How to solve the qubit mapping problem?**
+# **2. How to solve the qubit mapping problem?**
 # ---------------------------------------------
 # 
 # The qubit mapping problem is unfortunately a NP problem and is exponentially hard to find the
