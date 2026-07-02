@@ -487,10 +487,18 @@ def build_hardware_graph(hardware_data):
     )
     return G_hardware
 
+Graph_hardware = build_hardware_graph(ds.hardware[26])
+
 ######################################################################
 # We can again visualize the graph using networkx:
 # 
 # Draw graph
+G_hardware = to_networkx(
+    Graph_hardware,
+    edge_attrs=["edge_attr"],  # keep CX counts
+    node_attrs=["x"],          # keep node features
+    to_undirected=False
+)
 
 plt.figure(figsize=(10, 10))
 pos = nx.spring_layout(
@@ -638,6 +646,41 @@ class QubitMapping_dot_Model(nn.Module):
             # Shape: [total_logical_nodes_in_batch]
             mapping = torch.cat(prob_list, dim=0)
             return mapping
+
+def make_edge_mlp(in_dim, out_dim, hid_dim=32):
+    """
+    Create a small multilayer perceptron (MLP) used to process edge features.
+
+    Parameters
+    ----------
+    in_dim : int
+        Dimension of the input edge feature vector.
+    out_dim : int
+        Dimension of the output representation (e.g., message, weight,
+        or embedding associated with an edge).
+    hid_dim : int, optional
+        Number of neurons in the hidden layer (default: 32).
+
+    Returns
+    -------
+    torch.nn.Sequential
+        Two-layer feed-forward neural network:
+            Linear(in_dim -> hid_dim)
+            ReLU activation
+            Linear(hid_dim -> out_dim)
+
+    Notes
+    -----
+    In graph neural networks, this MLP is typically applied to edge
+    attributes to generate edge embeddings or edge-dependent messages
+    that are used during the message-passing/convolution step.
+    """
+    return nn.Sequential(
+        nn.Linear(in_dim, hid_dim),
+        nn.ReLU(),
+        nn.Linear(hid_dim, out_dim)
+    )
+
 
 ######################################################################
 # **4.3 Loss function and metric**
@@ -828,19 +871,11 @@ def train_loop(model, optimizer, loss_fn, loader_train, loader_valid, n_epoch, d
 # The training can be run by defining the model, the optimizer, the loss function, the sample loaders,
 # the number of epochs and the device.
 # 
-
-loss_hist_train, accuracy_hist_train, exact_accuracy_hist_train, \
-accuracy_hist_valid, exact_accuracy_hist_valid = train_loop(model, optimizer, loss_fn,
-                                                            train_loader, val_loader,
-                                                            n_epochs, device)
-
 ######################################################################
 # For the optimizer, we can for example using an Adam optimizer which is an efficient optimizer which
 # adapts the learning rate for each parameter based on estimates of the first and second moments (mean
 # and variance) of gradients.
 # 
-
-optimizer = torch.optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-5)
 
 ######################################################################
 # With this architecture applied to a qubit mapping problem on hardware with 5 physical qubits (IBM
