@@ -871,7 +871,6 @@ def train_loop(model, optimizer, loss_fn, loader_train, loader_valid, n_epoch, d
 # The training can be run by defining the model, the optimizer, the loss function, the sample loaders,
 # the number of epochs and the device.
 # 
-######################################################################
 # For the optimizer, we can for example using an Adam optimizer which is an efficient optimizer which
 # adapts the learning rate for each parameter based on estimates of the first and second moments (mean
 # and variance) of gradients.
