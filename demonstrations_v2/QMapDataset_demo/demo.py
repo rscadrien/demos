@@ -358,7 +358,7 @@ mapping = sample0_mapping["final_mapping"]
 # qubits. Since the relative values of these features are what matter, we standardize them. This is
 # the code to build the graph for the quantum circuit of the QMapDataset:
 # 
-
+import numpy as np
 import torch
 from torch_geometric.data import Data
 def build_circuit_graph (circuit_data):
