@@ -655,30 +655,6 @@ class QubitMapping_dot_Model(nn.Module):
 def make_edge_mlp(in_dim, out_dim, hid_dim=32):
     """
     Create a small multilayer perceptron (MLP) used to process edge features.
-
-    Parameters
-    ----------
-    in_dim : int
-        Dimension of the input edge feature vector.
-    out_dim : int
-        Dimension of the output representation (e.g., message, weight,
-        or embedding associated with an edge).
-    hid_dim : int, optional
-        Number of neurons in the hidden layer (default: 32).
-
-    Returns
-    -------
-    torch.nn.Sequential
-        Two-layer feed-forward neural network:
-            Linear(in_dim -> hid_dim)
-            ReLU activation
-            Linear(hid_dim -> out_dim)
-
-    Notes
-    -----
-    In graph neural networks, this MLP is typically applied to edge
-    attributes to generate edge embeddings or edge-dependent messages
-    that are used during the message-passing/convolution step.
     """
     return nn.Sequential(
         nn.Linear(in_dim, hid_dim),
