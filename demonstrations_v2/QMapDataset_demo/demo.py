@@ -5,8 +5,8 @@ The demo introduces the qubit mapping problem, an NP-hard challenge in quantum c
 with limited hardware connectivity, and explores machine learning-based approaches for solving it.
 It presents the QMapDataset available in PennyLane and shows how it can be used to train a Graph
 Neural Network to tackle the qubit mapping problem.
- 
 """
+
 ######################################################################
 # **1. What is the qubit mapping problem?**
 # -----------------------------------------
