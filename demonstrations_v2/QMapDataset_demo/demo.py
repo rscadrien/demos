@@ -471,14 +471,14 @@ def build_hardware_graph(hardware_data):
     sx_error_scaled = standard_scaling_across_qubits(np.array(hardware_data['sx_error']))
     x_error_scaled = standard_scaling_across_qubits(np.array(hardware_data['x_error']))
     #Scaling two qubit gate properties
-    cx_error_scaled = scaled_two_qubit_list(hardware_data['cx'])
+    ecr_error_scaled = scaled_two_qubit_list(hardware_data['ecr'])
     #Build the node feature matrix
     X = torch.tensor(
     list(zip(T1_scaled, T2_scaled, readout_error_scaled, sx_error_scaled, x_error_scaled)),
     dtype=torch.float
     )
     #Build the edge index and attributes matrix
-    cx_index, cx_attr = edge_info(cx_error_scaled)
+    cx_index, cx_attr = edge_info(ecr_error_scaled)
     #Build the graph
     G_hardware = Data(
     x=X,
